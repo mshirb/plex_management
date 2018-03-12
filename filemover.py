@@ -1,7 +1,7 @@
 import os
 import re
 
-series_ep_search = r'S\d\dE\d+'
+series_ep_search = r'S[0-9][0-9]E[0-9]'
 
 # FOR WINDOWS TESTING
 # s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
@@ -24,12 +24,13 @@ def init_search_list():
 
 def breakdownpath(spath):
     global valid
-    sresult = spath.upper()
+    sresult = spath.upper().replace('.', ' ')
     match = valid.search(spath)
     if match:
         index = match.start()
         sresult = sresult[:index-1]
-    sresult = sresult.replace('.', ' ')
+    else:
+        print('NO MATCH')
     return sresult
 
 if __name__ == "__main__":
@@ -51,4 +52,4 @@ if __name__ == "__main__":
                 # Move file
                 print('Moving: ' + full_path)
                 print('To: ' + full_path_folder + str(file))
-                os.rename(full_path, full_path_folder + str(file))
+                # os.rename(full_path, full_path_folder + str(file))
