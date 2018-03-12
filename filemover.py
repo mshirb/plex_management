@@ -25,7 +25,7 @@ def init_search_list():
 def breakdownpath(spath):
     global valid
     sresult = spath.upper().replace('.', ' ')
-    match = valid.search(spath)
+    match = valid.search(sresult)
     if match:
         index = match.start()
         sresult = sresult[:index-1]
