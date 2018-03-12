@@ -11,6 +11,7 @@ s_dir = '/srv/odroid/media/DOWNLOADS'
 s_tv_dir = '/srv/odroid/media/TV'
 
 dir_search_list = []
+tv_dir_list = os.listdir(s_tv_dir)
 valid = re.compile(series_ep_search)
 
 def init_search_list():
@@ -23,12 +24,12 @@ def init_search_list():
 
 def breakdownpath(spath):
     global valid
-    sresult = spath
+    sresult = spath.upper()
     match = valid.search(spath)
     if match:
         index = match.start()
         sresult = sresult[:index-1]
-    sresult = sresult.replace('.', '_')
+    sresult = sresult.replace('.', ' ')
     return sresult
 
 if __name__ == "__main__":
@@ -39,5 +40,15 @@ if __name__ == "__main__":
         for file in new_list:
             full_path = dir + '/' + str(file)
             if os.path.isfile(full_path) and (file.endswith('mkv') or file.endswith('avi')):
-                print(breakdownpath(str(file)))
-
+                # create name for where the file is to be moved too
+                result = breakdownpath(str(file))
+                print(result)
+                # check if it has a folder
+                full_path_folder = s_tv_dir + '/' + result + '/'
+                if not result in tv_dir_list:
+                    # Make Directory
+                    os.mkdir(full_path_folder)
+                # Move file
+                print('Moving: ' + full_path)
+                print('To: ' + full_path_folder + str(file))
+                os.rename(full_path, full_path_folder + str(file))
