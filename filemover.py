@@ -12,7 +12,7 @@ s_tv_dir = s_dir + '/TV'
 
 dir_search_list = []
 tv_dir_list = os.listdir(s_tv_dir)
-valid = re.compile(r'S[0-9][0-9]E[0-9]', re.ASCII)
+valid = re.compile(r'[sS][0-9]+[eE][0-9]+', re.ASCII)
 
 def init_search_list():
     global dir_search_list
@@ -52,4 +52,4 @@ if __name__ == "__main__":
                 # Move file
                 print('Moving: ' + full_path)
                 print('To: ' + full_path_folder + str(file))
-                # os.rename(full_path, full_path_folder + str(file))
+                os.rename(full_path, full_path_folder + str(file))
