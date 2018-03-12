@@ -1,18 +1,18 @@
 import os
 import re
 
-series_ep_search = r'S[0-9][0-9]E[0-9]'
+series_ep_search = 'S[0-9][0-9]E[0-9]'
 
 # FOR WINDOWS TESTING
-# s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
-# s_tv_dir = s_dir + '/TV'
+s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
+s_tv_dir = s_dir + '/TV'
 # FOR LINUX
-s_dir = '/srv/odroid/media/DOWNLOADS'
-s_tv_dir = '/srv/odroid/media/TV'
+# s_dir = '/srv/odroid/media/DOWNLOADS'
+# s_tv_dir = '/srv/odroid/media/TV'
 
 dir_search_list = []
 tv_dir_list = os.listdir(s_tv_dir)
-valid = re.compile(series_ep_search)
+valid = re.compile(r'S[0-9][0-9]E[0-9]', re.ASCII)
 
 def init_search_list():
     global dir_search_list
