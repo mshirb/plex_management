@@ -3,6 +3,8 @@ import re
 import threading
 from time import sleep
 
+from LoggerService import WritetoLog
+
 # FOR WINDOWS TESTING
 s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
 s_tv_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/TV'
@@ -31,7 +33,7 @@ def breakdownpath(spath):
         index = match.start()
         sresult = sresult[:index-1]
     else:
-        print('NO MATCH')
+        WritetoLog('FM,BDP','NO MATCH')
     return sresult
 
 class file_moving_thread(threading.Thread):
@@ -39,9 +41,12 @@ class file_moving_thread(threading.Thread):
         threading.Thread.__init__(self)
         # init_search_list()
         self.KeepRunning = True
+        WritetoLog('FM', 'Thread Initialised...')
 
     def run(self):
         global dir_search_list
+
+        WritetoLog('FM', 'Thread Running...')
 
         while(self.KeepRunning):
 
@@ -55,7 +60,7 @@ class file_moving_thread(threading.Thread):
                 for dir in dir_search_list:
                     if not os.path.exists(dir):
                         continue
-                    print("Checking {}".format(dir))
+                    WritetoLog('FM', "Checking {}".format(dir))
                     new_list = os.listdir(dir)
                     for file in new_list:
                         full_path = dir + '/' + str(file)
@@ -68,8 +73,8 @@ class file_moving_thread(threading.Thread):
                                 # Make Directory
                                 os.mkdir(full_path_folder)
                             # Move file
-                            print('Moving: ' + full_path)
-                            print('To: ' + full_path_folder + str(file))
+                            WritetoLog('FM', 'Moving: ' + full_path)
+                            WritetoLog('FM', 'To: ' + full_path_folder + str(file))
                             os.rename(full_path, full_path_folder + str(file))
                         elif os.path.isfile(full_path) and file.endswith('part'):
                             # Not yet finished move on
@@ -80,8 +85,7 @@ class file_moving_thread(threading.Thread):
                     if not os.listdir(dir):
                         os.rmdir(dir)
 
-            print(sleep_timer)
-
+            WritetoLog('FM', "Sleeping for {} minutes".format(sleep_timer))
             sleep(sleep_timer * 60)
 
 if __name__ == "__main__":
