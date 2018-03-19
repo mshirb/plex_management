@@ -5,12 +5,15 @@ from time import sleep
 
 from LoggerService import WritetoLog
 
-# FOR WINDOWS TESTING
-# s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
-# s_tv_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/TV'
-# FOR LINUX
-s_dir = '/srv/odroid/media/DOWNLOADS'
-s_tv_dir = '/srv/odroid/media/TV'
+import platform
+if platform.system() == 'Windows':
+    print('On Windows')
+    s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
+    s_tv_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/TV'
+else:
+    print('On Linux')
+    s_dir = '/srv/odroid/media/DOWNLOADS'
+    s_tv_dir = '/srv/odroid/media/TV'
 
 dir_search_list = []
 tv_dir_list = os.listdir(s_tv_dir)
@@ -46,7 +49,7 @@ class file_moving_thread(threading.Thread):
         WritetoLog(self.name, 'Thread Initialised...')
 
     def run(self):
-        global dir_search_list
+        global dir_search_list, report_sleeping
 
         WritetoLog(self.name, 'Thread Running...')
 
@@ -72,9 +75,11 @@ class file_moving_thread(threading.Thread):
                             result = breakdownpath(str(file))
                             # check if it has a folder
                             full_path_folder = s_tv_dir + '/' + result + '/'
-                            if not result in tv_dir_list:
+                            try:
                                 # Make Directory
                                 os.mkdir(full_path_folder)
+                            except FileExistsError:
+                                WritetoLog(self.name, 'Folder already created')
                             # Move file
                             WritetoLog(self.name, 'Moving: ' + full_path)
                             WritetoLog(self.name, 'To: ' + full_path_folder + str(file))
