@@ -6,15 +6,16 @@ from time import sleep
 from LoggerService import WritetoLog
 
 # FOR WINDOWS TESTING
-s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
-s_tv_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/TV'
+# s_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/Test_folder'
+# s_tv_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/TV'
 # FOR LINUX
-# s_dir = '/srv/odroid/media/DOWNLOADS'
-# s_tv_dir = '/srv/odroid/media/TV'
+s_dir = '/srv/odroid/media/DOWNLOADS'
+s_tv_dir = '/srv/odroid/media/TV'
 
 dir_search_list = []
 tv_dir_list = os.listdir(s_tv_dir)
-valid = re.compile(r'[sS][0-9]+[eE][0-9]+', re.ASCII)
+valid = re.compile(r'[sS][0-9]+[eE][0-9]+')
+report_sleeping = False
 
 def init_search_list():
     global dir_search_list
@@ -41,12 +42,13 @@ class file_moving_thread(threading.Thread):
         threading.Thread.__init__(self)
         # init_search_list()
         self.KeepRunning = True
-        WritetoLog('FM', 'Thread Initialised...')
+        self.name = 'FileMover'
+        WritetoLog(self.name, 'Thread Initialised...')
 
     def run(self):
         global dir_search_list
 
-        WritetoLog('FM', 'Thread Running...')
+        WritetoLog(self.name, 'Thread Running...')
 
         while(self.KeepRunning):
 
@@ -58,9 +60,10 @@ class file_moving_thread(threading.Thread):
                 # change sleep timer for more closer checks
                 sleep_timer = 2
                 for dir in dir_search_list:
+                    report_sleeping = False
                     if not os.path.exists(dir):
                         continue
-                    WritetoLog('FM', "Checking {}".format(dir))
+                    WritetoLog(self.name, "Checking {}".format(dir))
                     new_list = os.listdir(dir)
                     for file in new_list:
                         full_path = dir + '/' + str(file)
@@ -73,8 +76,8 @@ class file_moving_thread(threading.Thread):
                                 # Make Directory
                                 os.mkdir(full_path_folder)
                             # Move file
-                            WritetoLog('FM', 'Moving: ' + full_path)
-                            WritetoLog('FM', 'To: ' + full_path_folder + str(file))
+                            WritetoLog(self.name, 'Moving: ' + full_path)
+                            WritetoLog(self.name, 'To: ' + full_path_folder + str(file))
                             os.rename(full_path, full_path_folder + str(file))
                         elif os.path.isfile(full_path) and file.endswith('part'):
                             # Not yet finished move on
@@ -85,7 +88,9 @@ class file_moving_thread(threading.Thread):
                     if not os.listdir(dir):
                         os.rmdir(dir)
 
-            WritetoLog('FM', "Sleeping for {} minutes".format(sleep_timer))
+            if not report_sleeping:
+                WritetoLog(self.name, "Sleeping for {} minutes".format(sleep_timer))
+                report_sleeping = True
             sleep(sleep_timer * 60)
 
 if __name__ == "__main__":
