@@ -2,8 +2,16 @@ import os
 import re
 import threading
 from time import sleep
+import logging
 
-from LoggerService import WritetoLog
+# from LoggerService import WritetoLog
+
+logger = logging.getLogger('thefilemover')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('filemover.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 import platform
 if platform.system() == 'Windows':
@@ -37,7 +45,7 @@ def breakdownpath(spath):
         index = match.start()
         sresult = sresult[:index-1]
     else:
-        WritetoLog('FM,BDP','NO MATCH')
+        logger.info('No Match found when breaking down path')
     return sresult
 
 class file_moving_thread(threading.Thread):
@@ -46,12 +54,12 @@ class file_moving_thread(threading.Thread):
         # init_search_list()
         self.KeepRunning = True
         self.name = 'FileMover'
-        WritetoLog(self.name, 'Thread Initialised...')
+        logger.debug('Thread Initialised...')
 
     def run(self):
         global dir_search_list, report_sleeping
 
-        WritetoLog(self.name, 'Thread Running...')
+        logger.debug('Thread Running...')
 
         while(self.KeepRunning):
 
@@ -66,7 +74,7 @@ class file_moving_thread(threading.Thread):
                     report_sleeping = False
                     if not os.path.exists(dir):
                         continue
-                    WritetoLog(self.name, "Checking {}".format(dir))
+                    logger.info("Checking {}".format(dir))
                     new_list = os.listdir(dir)
                     for file in new_list:
                         full_path = dir + '/' + str(file)
@@ -79,10 +87,10 @@ class file_moving_thread(threading.Thread):
                                 # Make Directory
                                 os.mkdir(full_path_folder)
                             except FileExistsError:
-                                WritetoLog(self.name, 'Folder already created')
+                                logger.info('Folder already created')
                             # Move file
-                            WritetoLog(self.name, 'Moving: ' + full_path)
-                            WritetoLog(self.name, 'To: ' + full_path_folder + str(file))
+                            logger.info('Moving: ' + full_path)
+                            logger.info('To: ' + full_path_folder + str(file))
                             os.rename(full_path, full_path_folder + str(file))
                         elif os.path.isfile(full_path) and file.endswith('part'):
                             # Not yet finished move on
@@ -94,7 +102,7 @@ class file_moving_thread(threading.Thread):
                         os.rmdir(dir)
 
             if not report_sleeping:
-                WritetoLog(self.name, "Sleeping for {} minutes".format(sleep_timer))
+                logger.info("Sleeping for {} minutes".format(sleep_timer))
                 report_sleeping = True
             sleep(sleep_timer * 60)
 
