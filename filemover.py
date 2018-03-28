@@ -3,9 +3,13 @@ import re
 import threading
 from time import sleep
 import logging
+import argparse
 
-# from LoggerService import WritetoLog
+import pyfttt
 
+ifttt_api_key = ''
+
+# Logger information to print to screen and file
 logger = logging.getLogger('thefilemover')
 logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler('filemover.log')
@@ -60,7 +64,7 @@ class file_moving_thread(threading.Thread):
         logger.debug('Thread Initialised...')
 
     def run(self):
-        global dir_search_list, report_sleeping
+        global dir_search_list, report_sleeping, ifttt_api_key
 
         logger.debug('Thread Running...')
 
@@ -94,7 +98,13 @@ class file_moving_thread(threading.Thread):
                             # Move file
                             logger.info('Moving: ' + full_path)
                             logger.info('To: ' + full_path_folder + str(file))
-                            os.rename(full_path, full_path_folder + str(file))
+                            try:
+                                os.rename(full_path, full_path_folder + str(file))
+                            except FileExistsError:
+                                logger.info('File Already Exists where we are moving it to')
+                            else:
+                                logger.debug('Informing users')
+                                pyfttt.send_event(ifttt_api_key, 'send_plex_email', value1=str(result))
                         elif os.path.isfile(full_path) and file.endswith('part'):
                             # Not yet finished move on
                             pass
@@ -110,5 +120,13 @@ class file_moving_thread(threading.Thread):
             sleep(sleep_timer * 60)
 
 if __name__ == "__main__":
+    # Parse arguments in for API Keys
+    parser = argparse.ArgumentParser()
+
+    # Parse for API Key
+    parser.add_argument("ifttt_key", help="IFTTT Webhook API Key", type=str)
+    args = parser.parse_args()
+    ifttt_api_key = args.ifttt_key
+
     thread = file_moving_thread()
     thread.start()
