@@ -5,6 +5,7 @@ from time import sleep
 import logging
 import argparse
 
+import requests
 import pyfttt
 
 ifttt_api_key = ''
@@ -105,6 +106,11 @@ class file_moving_thread(threading.Thread):
                             else:
                                 logger.debug('Informing users')
                                 pyfttt.send_event(ifttt_api_key, 'send_plex_email', value1=str(result))
+                                try:
+                                    logger.debug('Update the library')
+                                    requests.get('http://127.0.0.1:32400/library/sections/7/refresh?X-Plex-Token=bK6z5hA66Xb6qST7q8Zx')
+                                except Exception:
+                                    logger.warning('Doesn\'t appear to have a plex server on this computer')
                         elif os.path.isfile(full_path) and file.endswith('part'):
                             # Not yet finished move on
                             pass
