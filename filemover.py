@@ -28,7 +28,7 @@ if platform.system() == 'Windows':
     s_tv_dir = 'C:/Users/MarkS/PycharmProjects/plex_management/TV'
 else:
     print('On Linux')
-    s_dir = '/media/nas/hdd1/DOWNLOADS'
+    s_dir = '/media/nas/hdd1/DOWNLOADS/complete'
     s_tv_dir = '/media/nas/hdd1/TV'
 
 dir_search_list = []
@@ -108,7 +108,7 @@ class file_moving_thread(threading.Thread):
                                 pyfttt.send_event(ifttt_api_key, 'send_plex_email', value1=str(result))
                                 try:
                                     logger.debug('Update the library')
-                                    requests.get('http://127.0.0.1:32400/library/sections/7/refresh?X-Plex-Token=bkFe8qodxyUAwjD4X7Fq')
+                                    requests.get('http://10.1.1.24:32400/library/sections/7/refresh?X-Plex-Token=bkFe8qodxyUAwjD4X7Fq')
                                 except Exception:
                                     logger.warning('Doesn\'t appear to have a plex server on this computer')
                         elif os.path.isfile(full_path) and file.endswith('part'):
